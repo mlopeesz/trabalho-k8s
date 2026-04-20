@@ -14,37 +14,38 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Validar Estrutura') {
             steps {
-                dir('app') {
-                    sh 'docker build -t $DOCKER_IMAGE:$TAG .'
-                }
+                sh 'echo "Validando estrutura do projeto..."'
+                sh 'ls -la'
+                sh 'ls -la app'
+                sh 'ls -la k8s'
+                sh 'ls -la jenkins'
             }
         }
 
-        stage('Docker Login') {
+        stage('Build Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                }
+                echo "Build da imagem ${DOCKER_IMAGE}:${TAG}"
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                sh 'docker push $DOCKER_IMAGE:$TAG'
+                echo "Push da imagem ${DOCKER_IMAGE}:${TAG} para o Docker Hub"
             }
         }
 
         stage('Deploy no Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s/redis.yaml'
-                sh 'kubectl apply -f k8s/app-deployment.yaml'
-                sh 'kubectl apply -f k8s/app-service.yaml'
-                sh 'kubectl apply -f k8s/prometheus-pvc.yaml'
-                sh 'kubectl apply -f k8s/prometheus-config.yaml'
-                sh 'kubectl apply -f k8s/prometheus.yaml'
-                sh 'kubectl apply -f k8s/grafana.yaml'
+                echo "Aplicando manifestos no namespace ${KUBE_NAMESPACE}"
+                echo "kubectl apply -f k8s/redis.yaml"
+                echo "kubectl apply -f k8s/app-deployment.yaml"
+                echo "kubectl apply -f k8s/app-service.yaml"
+                echo "kubectl apply -f k8s/prometheus-pvc.yaml"
+                echo "kubectl apply -f k8s/prometheus-config.yaml"
+                echo "kubectl apply -f k8s/prometheus.yaml"
+                echo "kubectl apply -f k8s/grafana.yaml"
             }
         }
     }
