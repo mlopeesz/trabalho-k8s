@@ -1,28 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minha-app
-  namespace: faculdade
+  name: app-devops
 spec:
   replicas: 4
   selector:
     matchLabels:
-      app: minha-app
+      app: app-devops
   template:
     metadata:
       labels:
-        app: minha-app
+        app: app-devops
     spec:
       containers:
-      - name: minha-app
-        image: mlopeesz/app-trabalho-pos:v1
-        ports:
-        - containerPort: 80
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          timeoutSeconds: 2
-          failureThreshold: 3
+        - name: app-devops
+          image: mlopeesz/app-devops:v1
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
