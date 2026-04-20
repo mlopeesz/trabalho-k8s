@@ -1,51 +1,10 @@
 pipeline {
     agent any
-
-    environment {
-        DOCKER_IMAGE = "mlopeesz/app-trabalho-pos"
-        TAG = "latest"
-        KUBE_NAMESPACE = "faculdade"
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Run App') {
             steps {
-                git branch: 'main', url: 'https://github.com/mlopeesz/trabalho-k8s.git'
-            }
-        }
-
-        stage('Validar Estrutura') {
-            steps {
-                sh 'echo "Validando estrutura do projeto..."'
-                sh 'ls -la'
-                sh 'ls -la app'
-                sh 'ls -la k8s'
-                sh 'ls -la jenkins'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                echo "Build da imagem ${DOCKER_IMAGE}:${TAG}"
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                echo "Push da imagem ${DOCKER_IMAGE}:${TAG} para o Docker Hub"
-            }
-        }
-
-        stage('Deploy no Kubernetes') {
-            steps {
-                echo "Aplicando manifestos no namespace ${KUBE_NAMESPACE}"
-                echo "kubectl apply -f k8s/redis.yaml"
-                echo "kubectl apply -f k8s/app-deployment.yaml"
-                echo "kubectl apply -f k8s/app-service.yaml"
-                echo "kubectl apply -f k8s/prometheus-pvc.yaml"
-                echo "kubectl apply -f k8s/prometheus-config.yaml"
-                echo "kubectl apply -f k8s/prometheus.yaml"
-                echo "kubectl apply -f k8s/grafana.yaml"
+                sh 'npm install'
+                sh 'npm start'
             }
         }
     }
