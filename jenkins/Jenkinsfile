@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "mlopeesz/app-trabalho-pos"
+        TAG = "latest"
+        KUBE_NAMESPACE = "faculdade"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/SEU_USUARIO/trabalho-k8s.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('app') {
+                    sh 'docker build -t $DOCKER_IMAGE:$TAG .'
+                }
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh 'docker push $DOCKER_IMAGE:$TAG'
+            }
+        }
+
+        stage('Deploy no Kubernetes') {
+            steps {
+                sh 'kubectl apply -f k8s/redis.yaml'
+                sh 'kubectl apply -f k8s/app-deployment.yaml'
+                sh 'kubectl apply -f k8s/app-service.yaml'
+                sh 'kubectl apply -f k8s/prometheus-pvc.yaml'
+                sh 'kubectl apply -f k8s/prometheus-config.yaml'
+                sh 'kubectl apply -f k8s/prometheus.yaml'
+                sh 'kubectl apply -f k8s/grafana.yaml'
+            }
+        }
+    }
+}
