@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/SEU_USUARIO/trabalho-k8s.git'
+                git branch: 'main', url: 'https://github.com/mlopeesz/trabalho-k8s.git'
             }
         }
 
