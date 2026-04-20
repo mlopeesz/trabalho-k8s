@@ -1,14 +1,14 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18'
-        }
-    }
+    agent any
 
     stages {
         stage('Run App') {
             steps {
-                sh 'npm install'
+                sh '''
+                    apt update
+                    apt install -y nodejs npm
+                    npm install
+                '''
             }
         }
     }
